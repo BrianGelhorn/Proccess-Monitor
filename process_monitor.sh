@@ -1,7 +1,9 @@
+
 #!/bin/bash
 
 LIST=false
 METRICS=false
+OWNER=false
 PROC=""
 while [[ "$#" -gt 0 ]]; do
 	case "$1" in 
@@ -11,6 +13,10 @@ while [[ "$#" -gt 0 ]]; do
 		;;
 	--usage)
 		METRICS=true
+		shift
+		;;
+	--owner)
+		OWNER=true
 		shift
 		;;
 	--*)
@@ -55,3 +61,6 @@ else
 fi
 echo "$PROCESSLIST"	
 
+if [[ "$OWNER" == true ]]; then
+	echo "Process launched by:" $(top -b -n 1 | grep "$PROC" | cut -d ' ' -f4)
+fi
