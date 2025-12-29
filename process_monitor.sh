@@ -50,6 +50,7 @@ if [[ "$METRICS" == true ]]; then
 	PROCESSLIST=$(top -b -n 1 | grep "$PROC" | cut -d ' ' -f24,27,31)
 	
 else
+	echo "PID   NAME"
 	PROCESSLIST=$(pgrep -xl "$PROC")
 fi
 echo "$PROCESSLIST"	
