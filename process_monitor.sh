@@ -1,9 +1,10 @@
-
+\
 #!/bin/bash
 
 LIST=false
 METRICS=false
 OWNER=false
+PROCESSTATUS=false
 PROC=""
 while [[ "$#" -gt 0 ]]; do
 	case "$1" in 
@@ -11,12 +12,16 @@ while [[ "$#" -gt 0 ]]; do
 		LIST=true
 		shift
 		;;
-	--usage)
+	--metrics)
 		METRICS=true
 		shift
 		;;
 	--owner)
 		OWNER=true
+		shift
+		;;
+	--status)
+		PROCESSTATUS=true
 		shift
 		;;
 	--*)
@@ -51,16 +56,20 @@ if [[ "$STATUS" -ne 0 ]]; then
 	exit 1
 fi 
 echo List of processes labeled "$PROC"\:
+PROCESSLIST=$(ps --no-headers -o user,pid,comm,%cpu,%mem -C "$PROC")
 if [[ "$METRICS" == true ]]; then
 	echo "CPU RAM NAME"
-	PROCESSLIST=$(top -b -n 1 | grep "$PROC" | cut -d ' ' -f24,27,31)
-	
+	echo "$PROCESSLIST" | awk '{print $4, $5, $3}'	
 else
-	echo "PID   NAME"
-	PROCESSLIST=$(pgrep -xl "$PROC")
-fi
-echo "$PROCESSLIST"	
+	echo "PID  NAME"
+	echo "$PROCESSLIST" | awk '{print $2, $3}'
+fi	
 
 if [[ "$OWNER" == true ]]; then
-	echo "Process launched by:" $(top -b -n 1 | grep "$PROC" | cut -d ' ' -f4)
+	echo "$PROCESSLIST" | awk '{print "Process launched by: " $1}'
 fi
+
+# if [[ "$PROCESSTATUS" == true ]]; then
+# 	echo "The process" "$PROCESSLIST" | awk '{print $3, "is actually: " $(top -b -n 1 | grep $PROC | awk "{print $8}")}' 
+#fi
+#DOESNT WORK AS EXPECTED
