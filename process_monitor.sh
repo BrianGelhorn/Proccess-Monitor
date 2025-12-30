@@ -56,7 +56,7 @@ if [[ "$STATUS" -ne 0 ]]; then
 	exit 1
 fi 
 echo List of processes labeled "$PROC"\:
-PROCESSLIST=$(ps --no-headers -o user,pid,comm,%cpu,%mem -C "$PROC")
+PROCESSLIST=$(ps --no-headers -o user,pid,comm,%cpu,%mem,stat -C "$PROC")
 if [[ "$METRICS" == true ]]; then
 	echo "CPU RAM NAME"
 	echo "$PROCESSLIST" | awk '{print $4, $5, $3}'	
@@ -69,7 +69,19 @@ if [[ "$OWNER" == true ]]; then
 	echo "$PROCESSLIST" | awk '{print "Process launched by: " $1}'
 fi
 
-# if [[ "$PROCESSTATUS" == true ]]; then
-# 	echo "The process" "$PROCESSLIST" | awk '{print $3, "is actually: " $(top -b -n 1 | grep $PROC | awk "{print $8}")}' 
-#fi
-#DOESNT WORK AS EXPECTED
+if [[ "$PROCESSTATUS" == true ]]; then
+	echo -n "The state of the process is: "
+ 	case $(echo "$PROCESSLIST" | awk '{print $6}') in
+	*R*)
+		echo "Running"
+		;;
+	*S*)
+		echo "Sleeping"
+		;;	
+	*T*)
+		echo "Stopped"
+		;;
+	esac
+fi
+
+
