@@ -36,8 +36,8 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [[ "$LIST" == true ]]; then
-	if [[ ! -z "$PROC" || ! -z "$USAGE" ]]; then
-		echo "--list doesn't accept a process name or other arguments" >&2
+	if [[ ! -z "$PROC" ]]; then
+		echo "--list doesn't accept a process name" >&2
 		exit 1
 	fi
 	echo "The list of process running is:"
@@ -49,14 +49,14 @@ if [[ -z "$PROC" ]]; then
 	echo "No process was specified"
 	exit 1
 fi
-
+PROCESSLIST=$(ps --no-headers -o user,pid,comm,%cpu,%mem,stat -C "$PROC")
 STATUS=$?
 if [[ "$STATUS" -ne 0 ]]; then
 	echo No process was found
 	exit 1
 fi 
 echo List of processes labeled "$PROC"\:
-PROCESSLIST=$(ps --no-headers -o user,pid,comm,%cpu,%mem,stat -C "$PROC")
+
 if [[ "$METRICS" == true ]]; then
 	echo "CPU RAM NAME"
 	echo "$PROCESSLIST" | awk '{print $4, $5, $3}'	
