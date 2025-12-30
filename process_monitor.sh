@@ -51,6 +51,8 @@ if [[ -z "$PROC" ]]; then
 fi
 PROCESSLIST=$(ps --no-headers -o user,pid,comm,%cpu,%mem,stat -C "$PROC")
 STATUS=$?
+HEADER="PID NAME"
+FIELDS="2 3"
 if [[ "$STATUS" -ne 0 ]]; then
 	echo No process was found
 	exit 1
@@ -58,30 +60,25 @@ fi
 echo List of processes labeled "$PROC"\:
 
 if [[ "$METRICS" == true ]]; then
-	echo "CPU RAM NAME"
-	echo "$PROCESSLIST" | awk '{print $4, $5, $3}'	
-else
-	echo "PID  NAME"
-	echo "$PROCESSLIST" | awk '{print $2, $3}'
+	HEADER+=" CPU RAM"	
+	FIELDS+=" 4 5"
 fi	
 
 if [[ "$OWNER" == true ]]; then
-	echo "$PROCESSLIST" | awk '{print "Process launched by: " $1}'
+	HEADER+=" OWNER"
+	FIELDS+=" 1" 
 fi
 
 if [[ "$PROCESSTATUS" == true ]]; then
-	echo -n "The state of the process is: "
- 	case $(echo "$PROCESSLIST" | awk '{print $6}') in
-	*R*)
-		echo "Running"
-		;;
-	*S*)
-		echo "Sleeping"
-		;;	
-	*T*)
-		echo "Stopped"
-		;;
-	esac
+	HEADER+=" STATUS"
+	FIELDS+=" 6"
 fi
-
-
+echo $HEADER
+echo "$PROCESSLIST" | 
+	awk '{
+	n = split("$FIELDS", field, " ")
+	for(i=1; i<=n; i++)
+	{
+		printf "%s ", $field[i] 
+	} 
+	printf "\n"}'
