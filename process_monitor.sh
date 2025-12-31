@@ -50,7 +50,7 @@ if [[ -z "$PROC" ]]; then
 fi
 #				 1   2    3    4    5    6 
 PROCESSLIST=$(ps --no-headers -o pid,comm,%cpu,%mem,user,stat -C "$PROC")
-HEADER="PID NAME"
+HEADER="PID\tNAME"
 FIELDS="1 2"
 if [[ -z "$PROCESSLIST" ]]; then
 	echo No process was found
@@ -58,20 +58,20 @@ if [[ -z "$PROCESSLIST" ]]; then
 fi 
 echo List of processes labeled "$PROC"\:
 if [[ "$METRICS" == true ]]; then
-	HEADER+=" CPU RAM"	
+	HEADER+="\tCPU\tRAM"	
 	FIELDS+=" 3 4"
 fi	
 
 if [[ "$OWNER" == true ]]; then
-	HEADER+=" OWNER"
+	HEADER+="\tOWNER"
 	FIELDS+=" 5" 
 fi
 
 if [[ "$PROCESSTATUS" == true ]]; then
-	HEADER+=" STATUS"
+	HEADER+="\tSTATUS"
 	FIELDS+=" 6"
 fi
-(echo "$HEADER"
+(echo -e "$HEADER"
 echo "$PROCESSLIST" | awk -v fields="$FIELDS" '{
 	n = split(fields, field, " ")
 	for(i=1; i<=n; i++)
@@ -89,7 +89,7 @@ echo "$PROCESSLIST" | awk -v fields="$FIELDS" '{
 			}
 		}
 		else{
-			printf "%s ", curField	
+			printf "%s\t", curField	
 		}
 	} 
-	printf "\n"}') | column -t -s " "
+	printf "\n"}') | column -t -s $'\t'
