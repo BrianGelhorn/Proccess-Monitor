@@ -1,4 +1,3 @@
-\
 #!/bin/bash
 
 LIST=false
@@ -49,10 +48,11 @@ if [[ -z "$PROC" ]]; then
 	echo "No process was specified"
 	exit 1
 fi
-PROCESSLIST=$(ps --no-headers -o user,pid,comm,%cpu,%mem,stat -C "$PROC")
+#				 1   2    3    4    5    6 
+PROCESSLIST=$(ps --no-headers -o pid,comm,%cpu,%mem,user,stat -C "$PROC")
 STATUS=$?
 HEADER="PID NAME"
-FIELDS="2 3"
+FIELDS="1 2"
 if [[ "$STATUS" -ne 0 ]]; then
 	echo No process was found
 	exit 1
@@ -61,12 +61,12 @@ echo List of processes labeled "$PROC"\:
 
 if [[ "$METRICS" == true ]]; then
 	HEADER+=" CPU RAM"	
-	FIELDS+=" 4 5"
+	FIELDS+=" 3 4"
 fi	
 
 if [[ "$OWNER" == true ]]; then
 	HEADER+=" OWNER"
-	FIELDS+=" 1" 
+	FIELDS+=" 5" 
 fi
 
 if [[ "$PROCESSTATUS" == true ]]; then
@@ -75,10 +75,24 @@ if [[ "$PROCESSTATUS" == true ]]; then
 fi
 echo $HEADER
 echo "$PROCESSLIST" | 
-	awk '{
-	n = split("$FIELDS", field, " ")
+	awk -v fields="$FIELDS" '{
+	n = split(fields, field, " ")
 	for(i=1; i<=n; i++)
 	{
-		printf "%s ", $field[i] 
+		curField = $field[i]
+		if(field[i]==6){
+			if(curField ~ /^R/){
+				printf " %s", "Running"	
+			}
+			else if(curField ~ /^S/){
+				printf " %s", "Sleeping"
+			}	
+			else if(curField ~ /^T/){	
+				printf " %s", "Stopped"
+			}
+		}
+		else{
+			printf "%s ", curField	
+		}
 	} 
 	printf "\n"}'
