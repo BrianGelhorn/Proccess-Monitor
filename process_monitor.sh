@@ -71,7 +71,7 @@ if [[ "$PROCESSTATUS" == true ]]; then
 	HEADER+=" STATUS"
 	FIELDS+=" 6"
 fi
-echo "$HEADER"
+(echo "$HEADER"
 echo "$PROCESSLIST" | awk -v fields="$FIELDS" '{
 	n = split(fields, field, " ")
 	for(i=1; i<=n; i++)
@@ -79,17 +79,17 @@ echo "$PROCESSLIST" | awk -v fields="$FIELDS" '{
 		curField = $field[i]
 		if(field[i]==6){
 			if(curField ~ /^R/){
-				printf " %s", "Running"	
+				printf "Running"	
 			}
 			else if(curField ~ /^S/){
-				printf " %s", "Sleeping"
+				printf "Sleeping"
 			}	
 			else if(curField ~ /^T/){	
-				printf " %s", "Stopped"
+				printf "Stopped"
 			}
 		}
 		else{
 			printf "%s ", curField	
 		}
 	} 
-	printf "\n"}'
+	printf "\n"}') | column -t -s " "
