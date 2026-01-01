@@ -1,5 +1,18 @@
 #!/bin/bash
 
+show_help(){
+	cat <<EOF
+Usage: $0 [OPTIONS] <process_name>
+ 
+Options:
+	--list		List all running processes
+	--metrics	Show CPU and MEMORY usage
+	--owner		Show the user who launched the process
+	--status	Show the state of the process
+	-h, --help	Show this help message
+EOF
+}
+
 LIST=false
 METRICS=false
 OWNER=false
@@ -7,6 +20,10 @@ PROCESSTATUS=false
 PROC=""
 while [[ "$#" -gt 0 ]]; do
 	case "$1" in 
+	--help|-h)
+		show_help
+		exit 0
+		;;
 	--list)
 		LIST=true
 		shift
